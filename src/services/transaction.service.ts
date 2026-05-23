@@ -12,7 +12,7 @@ import { receiptPrompt } from "../utils/prompt";
 
 export const createTransactionService = async (
   body: CreateTransactionType,
-  userId: string
+  userId: string,
 ) => {
   let nextRecurringDate: Date | undefined;
   const currentDate = new Date();
@@ -20,7 +20,7 @@ export const createTransactionService = async (
   if (body.isRecurring && body.recurringInterval) {
     const calulatedDate = calculateNextOccurrence(
       body.date,
-      body.recurringInterval
+      body.recurringInterval,
     );
 
     nextRecurringDate =
@@ -53,7 +53,7 @@ export const getAllTransactionService = async (
   pagination: {
     pageSize: number;
     pageNumber: number;
-  }
+  },
 ) => {
   const { keyword, type, recurringStatus } = filters;
 
@@ -107,7 +107,7 @@ export const getAllTransactionService = async (
 
 export const getTransactionByIdService = async (
   userId: string,
-  transactionId: string
+  transactionId: string,
 ) => {
   const transaction = await TransactionModel.findOne({
     _id: transactionId,
@@ -120,7 +120,7 @@ export const getTransactionByIdService = async (
 
 export const duplicateTransactionService = async (
   userId: string,
-  transactionId: string
+  transactionId: string,
 ) => {
   const transaction = await TransactionModel.findOne({
     _id: transactionId,
@@ -148,7 +148,7 @@ export const duplicateTransactionService = async (
 export const updateTransactionService = async (
   userId: string,
   transactionId: string,
-  body: UpdateTransactionType
+  body: UpdateTransactionType,
 ) => {
   const existingTransaction = await TransactionModel.findOne({
     _id: transactionId,
@@ -197,9 +197,9 @@ export const updateTransactionService = async (
 
 export const deleteTransactionService = async (
   userId: string,
-  transactionId: string
+  transactionId: string,
 ) => {
-  const deleted = await TransactionModel.findByIdAndDelete({
+  const deleted = await TransactionModel.findOneAndDelete({
     _id: transactionId,
     userId,
   });
@@ -210,7 +210,7 @@ export const deleteTransactionService = async (
 
 export const bulkDeleteTransactionService = async (
   userId: string,
-  transactionIds: string[]
+  transactionIds: string[],
 ) => {
   const result = await TransactionModel.deleteMany({
     _id: { $in: transactionIds },
@@ -228,7 +228,7 @@ export const bulkDeleteTransactionService = async (
 
 export const bulkTransactionService = async (
   userId: string,
-  transactions: CreateTransactionType[]
+  transactions: CreateTransactionType[],
 ) => {
   try {
     const bulkOps = transactions.map((tx) => ({
@@ -260,7 +260,7 @@ export const bulkTransactionService = async (
 };
 
 export const scanReceiptService = async (
-  file: Express.Multer.File | undefined
+  file: Express.Multer.File | undefined,
 ) => {
   if (!file) throw new BadRequestException("No file uploaded");
 
