@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 export enum ReportFrequencyEnum {
   MONTHLY = "MONTHLY",
+  CUSTOM = "CUSTOM",
 }
 
 export interface ReportSettingDocument extends Document {
