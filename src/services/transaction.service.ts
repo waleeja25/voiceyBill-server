@@ -426,10 +426,10 @@ export const scanReceiptService = async (
   }
 
   try {
-    if (!file.path) {
+    if (!file.path.startsWith("https://res.cloudinary.com/")) {
       throw new BadRequestException("Failed to upload file");
     }
-
+    
     // Fetch the image from Cloudinary and convert to base64
     const response = await fetch(file.path);
     const arrayBuffer = await response.arrayBuffer();
