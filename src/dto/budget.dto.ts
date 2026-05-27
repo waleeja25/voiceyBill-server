@@ -11,6 +11,12 @@ export interface BudgetCategorySummaryDTO {
   exceeded: boolean;
 }
 
+export interface BudgetAlert {
+  message: string;
+  type: "category" | "overall";
+  category?: string;
+}
+
 export interface BudgetSummaryDTO {
   hasBudget: boolean;
   month: number;
@@ -21,7 +27,7 @@ export interface BudgetSummaryDTO {
   usagePercentage: number;
   exceeded: boolean;
   categories: BudgetCategorySummaryDTO[];
-  alerts: string[];
+  alerts: BudgetAlert[];
 }
 
 export async function toBudgetSummaryDTO(
@@ -74,7 +80,7 @@ export async function toBudgetSummaryDTO(
 
   // Calculate total spent and category summaries
   let totalSpent = 0;
-  const alerts: string[] = [];
+  const alerts: BudgetAlert[] = [];
   const categories: BudgetCategorySummaryDTO[] = budget.categoryLimits.map(
     (categoryLimit) => {
       const spent = categorySpending[categoryLimit.category] || 0;
@@ -87,13 +93,17 @@ export async function toBudgetSummaryDTO(
 
       // Generate alerts for exceeded categories
       if (exceeded) {
-        alerts.push(
-          `${categoryLimit.category} budget exceeded by $${(spent - categoryLimit.limit).toFixed(2)}`
-        );
+        alerts.push({
+          message: `${categoryLimit.category} budget exceeded by $${(spent - categoryLimit.limit).toFixed(2)}`,
+          type: "category",
+          category: categoryLimit.category,
+        });
       } else if (usagePercentage >= 80) {
-        alerts.push(
-          `${categoryLimit.category} budget is ${usagePercentage.toFixed(1)}% used`
-        );
+        alerts.push({
+          message: `${categoryLimit.category} budget is ${usagePercentage.toFixed(1)}% used`,
+          type: "category",
+          category: categoryLimit.category,
+        });
       }
 
       return {
@@ -101,7 +111,7 @@ export async function toBudgetSummaryDTO(
         limit: categoryLimit.limit,
         spent,
         remaining,
-       usagePercentage: Number(Math.min(usagePercentage, 100).toFixed(2)),
+        usagePercentage: Number(Math.min(usagePercentage, 100).toFixed(2)),
         exceeded,
       };
     }
@@ -114,11 +124,15 @@ export async function toBudgetSummaryDTO(
 
   // Add overall budget alert if exceeded
   if (exceeded) {
-    alerts.unshift(
-      `Overall budget exceeded by $${(totalSpent - budget.totalBudget).toFixed(2)}`
-    );
+    alerts.unshift({
+      message: `Overall budget exceeded by $${(totalSpent - budget.totalBudget).toFixed(2)}`,
+      type: "overall",
+    });
   } else if (usagePercentage >= 80) {
-    alerts.unshift(`Overall budget is ${usagePercentage.toFixed(1)}% used`);
+    alerts.unshift({
+      message: `Overall budget is ${usagePercentage.toFixed(1)}% used`,
+      type: "overall",
+    });
   }
 
   return {

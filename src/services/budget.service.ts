@@ -1,4 +1,5 @@
 import BudgetModel, { BudgetDocument } from "../models/budget.model";
+import UserModel from "../models/user.model";
 import {
   BadRequestException,
   ConflictException,
@@ -12,6 +13,7 @@ import {
   DeleteBudgetType,
 } from "../validators/budget.validator";
 import { toBudgetSummaryDTO, BudgetSummaryDTO } from "../dto/budget.dto";
+import { sendBudgetAlertEmail } from "../mailers/budget-alert.mailer";
 
 // Valid categories that users can set budgets for
 const VALID_CATEGORIES = [
@@ -153,6 +155,27 @@ export async function getBudgetSummary(
 
   // Get the summary (returns empty summary if no budget exists)
   const summary = await toBudgetSummaryDTO(budget, month, year, userId);
+
+  // Send email alert if there are exceeded budgets
+  if (summary.hasBudget && summary.alerts.length > 0) {
+    try {
+      const user = await UserModel.findById(userId);
+      if (user && user.email) {
+        await sendBudgetAlertEmail({
+          email: user.email,
+          username: user.name,
+          alerts: summary.alerts,
+          month,
+          year,
+          totalBudget: summary.totalBudget,
+          spent: summary.spent,
+        });
+      }
+    } catch (error) {
+      // Log error but don't fail the request if email fails
+      console.error("Failed to send budget alert email:", error);
+    }
+  }
 
   return summary;
 }
