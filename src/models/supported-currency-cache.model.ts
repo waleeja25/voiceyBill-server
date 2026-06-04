@@ -29,9 +29,6 @@ const supportedCurrencyCacheSchema = new Schema<SupportedCurrencyCacheDocument>(
     timestamps: true,
   },
 );
-
-supportedCurrencyCacheSchema.index({ code: 1 });
-
 const SupportedCurrencyCacheModel = mongoose.model<SupportedCurrencyCacheDocument>(
   "SupportedCurrencyCache",
   supportedCurrencyCacheSchema,

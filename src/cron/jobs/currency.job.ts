@@ -33,8 +33,8 @@ export const updateSupportedCurrenciesCache = async () => {
 };
 
 export const updateExchangeRatesCache = async () => {
-  const PROVIDER_BASE_URL=process.env.PROVIDER_BASE_URL
-  const TIMEOUT=Number(process.env.TIMEOUT)
+  const PROVIDER_BASE_URL=process.env.EXCHANGE_RATE_PROVIDER_URL
+  const TIMEOUT=Number(process.env.EXCHANGE_RATE_TIMEOUT_MS)
   try {
     await connctDatabase();
 
